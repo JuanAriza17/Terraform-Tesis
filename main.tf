@@ -2,9 +2,29 @@ provider "aws" {
   region = "us-east-1"
 }
 
+variable "ami_id" {
+  description = "ID de la AMI"
+  default = "ami-0440d3b780d96b29d"
+}
+
+variable "instance_type" {
+  description = "Tipo de instancia EC2"
+  default = "t3.micro"
+}
+
+variable "server_name" {
+  description = "Nombre del servidor web"
+  default = "example"
+}
+
+variable "enviroment" {
+  description = "Ambiente de la aplicación"
+  default = "test"
+}
+
 resource "aws_instance" "example" {
-  ami           = "ami-0440d3b780d96b29d"
-  instance_type = "t3.micro"
+  ami           = var.ami_id
+  instance_type = var.instance_type
 
   user_data = <<-EOF
               #!/bin/bash
@@ -20,20 +40,21 @@ resource "aws_instance" "example" {
   ]
 
   tags = {
-    Name = "example"
-    Environment = "test"
+    Name = var.server_name
+    Environment = var.enviroment
     Owner = "ja.arizag@uniandes.edu.co"
     Team = "Security"
     Project = "Tesis"
   }
 }
 
+# ssh-keygen -t rsa -b 2048 -f "example.key"
 resource "aws_key_pair" "example-ssh" {
-  key_name   = "example"
-  public_key = file("example.key.pub")
+  key_name   = var.server_name
+  public_key = file("${var.server_name}.key.pub")
     tags = {
-    Name = "example-ssh"
-    Environment = "test"
+    Name = "${var.server_name}-ssh"
+    Environment = var.enviroment
     Owner = "ja.arizag@uniandes.edu.co"
     Team = "Security"
     Project = "Tesis"
@@ -41,7 +62,7 @@ resource "aws_key_pair" "example-ssh" {
 }
 
 resource "aws_security_group" "example-sg" {
-  name = "example-sg"
+  name = "${var.server_name}-sg"
   description = "Security gruop allowing SSH and HTTP access"
 
   ingress {
@@ -65,8 +86,8 @@ resource "aws_security_group" "example-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name = "example-sg"
-    Environment = "test"
+    Name = "${var.server_name}-sg"
+    Environment = var.enviroment
     Owner = "ja.arizag@uniandes.edu.co"
     Team = "Security"
     Project = "Tesis"
