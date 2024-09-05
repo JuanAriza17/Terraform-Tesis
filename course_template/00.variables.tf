@@ -18,3 +18,8 @@ variable "enviroment" {
   description = "Ambiente de la aplicación"
   default = "test"
 }
+
+variable "curso" {
+  description = "curso a ejecutar en la máquina"
+  default = "default"
+}

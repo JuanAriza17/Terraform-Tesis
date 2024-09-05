@@ -2,12 +2,7 @@ resource "aws_instance" "example" {
   ami           = var.ami_id
   instance_type = var.instance_type
 
-  user_data = <<-EOF
-              #!/bin/bash
-              sudo yum install -y nginx
-              sudo systemctl enable nginx
-              sudo systemctl start nginx
-              EOF
+  user_data = data.template_file.init_script.rendered
   
   key_name = aws_key_pair.example-ssh.key_name
 
