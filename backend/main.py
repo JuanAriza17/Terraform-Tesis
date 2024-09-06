@@ -34,14 +34,16 @@ def deploy_vm(request: DeploymentRequest):
         # Inicializar Terraform con 'terraform init'
         init_command = ["terraform", "init"]
         run_terraform_command(init_command)
+        print(request.courses)
+        print(request.instance_count)
         
         # Configurar las variables de Terraform desde los datos del request
-        print(request.courses)
         terraform_command = [
             "terraform", "apply", "-auto-approve",
             f"-var=courses={json.dumps(request.courses)}",
             f"-var=instance_count={request.instance_count}"
         ]
+        
 
         # Ejecutar Terraform con 'terraform apply'
         apply_output = run_terraform_command(terraform_command)
@@ -54,6 +56,7 @@ def deploy_vm(request: DeploymentRequest):
         return {"message": "Despliegue exitoso", "ip": default_ip}
 
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 # Ruta para manejar el despliegue

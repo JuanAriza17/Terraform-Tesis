@@ -22,7 +22,7 @@ module "default" {
   server_name   = "default"
   enviroment    = "dev"
   instance_count = var.instance_count
-  curso         = var.courses
+  courses         = var.courses
 }
 
 output "default_ip" {
