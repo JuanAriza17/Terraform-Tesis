@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException, status, Depends
 
 router = APIRouter(
-    prefix="/auth",
+    prefix="/auth",<
     tags=["auth"]
 )
 
