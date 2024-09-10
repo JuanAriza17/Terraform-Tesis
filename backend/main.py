@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, SessionLocal
 from sqlalchemy.orm import Session
+from typing import Annotated
 import json
 import subprocess
 import os
@@ -32,6 +33,11 @@ def get_db():
         yield db
     finally:
         db.close()
+        
+#Dependencias
+
+db_dependency = Annotated[Session, Depends(get_db)]
+token_dependency = Annotated[dict, Depends(auth.verify_token)]
 
 # Modelo de datos que recibe desde el frontend
 class DeploymentRequest(BaseModel):
@@ -47,7 +53,7 @@ def run_terraform_command(command: list):
 
 # Ruta para manejar el despliegue
 @app.post("/deploy")
-def deploy_vm(request: DeploymentRequest):
+def deploy_vm(request: DeploymentRequest, token: token_dependency, db:db_dependency):
     try:
         # Inicializar Terraform con 'terraform init'
         init_command = ["terraform", "init"]
@@ -79,7 +85,7 @@ def deploy_vm(request: DeploymentRequest):
 
 # Ruta para manejar el despliegue
 @app.post("/destroy")
-def destroy_vm():
+def destroy_vm(token: token_dependency, db:db_dependency):
     try:
         destroy_command = ["terraform", "destroy", "-auto-approve"]
         destroy_output = run_terraform_command(destroy_command)

@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException, status, Depends
 
 router = APIRouter(
-    prefix="/auth",<
+    prefix="/auth",
     tags=["auth"]
 )
 
@@ -20,7 +20,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 #JWT
-SECRET_KEY = "your_secret_key"
+SECRET_KEY = "e3ee2ef818adc67a8a2f03b5bfc39a549db6c76d760519b8f212bc32cf78326d"
 ALGORITHM = "HS256"
 ACCES_TOKEN_EXPIRE_MINUTES = 60
 
@@ -28,6 +28,9 @@ class UserCreate(BaseModel):
     username: str
     password: str
 
+class Token(BaseModel):
+    access_token: str
+    token_type:str
 
 #Base de datos
 def get_db():
@@ -70,10 +73,10 @@ def verify_token(token: str = Depends(oauth2_scheme)):
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
-            raise HTTPException(status_code=403, detail="Token is invalid or expired")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate user")
         return payload
     except JWTError:
-        raise HTTPException(status_code=403, detail="Token is invalid or expired")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate user")
 
 # Función para crear el token de acceso
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
@@ -87,8 +90,8 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 #Ruta para crear el token
-@router.post("/token")
-def login_for_acces_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session=Depends(get_db)):
+@router.post("/token", response_model=Token)
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session=Depends(get_db)):
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(

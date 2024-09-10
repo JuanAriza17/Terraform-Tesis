@@ -2,6 +2,7 @@
 **/.terraform/*
 
 venv/
+**/__pycache__
 # .tfstate files
 #*.tfstate
 #*.tfstate.*
