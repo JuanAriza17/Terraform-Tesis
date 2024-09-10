@@ -1,20 +1,38 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, status, Depends
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from database import engine, SessionLocal
+from sqlalchemy.orm import Session
 import json
 import subprocess
 import os
+import auth
 
 app = FastAPI()
+app.include_router(auth.router)
+
+
+origins = [
+    "http://localhost:3000",
+]
 
 # Habilitar CORS para permitir solicitudes desde el frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Puedes especificar dominios específicos en lugar de "*"
+    allow_origins=origins,  # Puedes especificar dominios específicos en lugar de "*"
     allow_credentials=True,
     allow_methods=["*"],  # Permitir todos los métodos (POST, GET, etc.)
     allow_headers=["*"],  # Permitir todos los headers
 )
+
+#Base de datos
+def get_db():
+    db= SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 # Modelo de datos que recibe desde el frontend
 class DeploymentRequest(BaseModel):
     courses: list[str]
@@ -70,3 +88,4 @@ def destroy_vm():
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
