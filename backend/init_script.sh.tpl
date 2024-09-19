@@ -14,4 +14,5 @@ sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plug
 sudo apt-get -y install git
 git clone https://github.com/JuanAriza17/Docker-Tesis.git
 cd /Docker-Tesis/${curso}/
+echo "FLAG=${flag}" > .env
 sudo docker compose up -d

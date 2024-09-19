@@ -3,6 +3,7 @@ data "template_file" "init_script" {
   template = file("init_script.sh.tpl")
 
   vars = {
-    curso = var.courses[count.index]
+    curso = var.courses[count.index],
+    flag = var.flags[count.index]
   }
 }

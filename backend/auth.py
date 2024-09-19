@@ -22,7 +22,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 #JWT
 SECRET_KEY = "e3ee2ef818adc67a8a2f03b5bfc39a549db6c76d760519b8f212bc32cf78326d"
 ALGORITHM = "HS256"
-ACCES_TOKEN_EXPIRE_MINUTES = 60
+ACCES_TOKEN_EXPIRE_MINUTES = 120
 
 class UserCreate(BaseModel):
     username: str

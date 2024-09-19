@@ -30,6 +30,17 @@ variable "curso" {
   default     = "default"
 }
 
+variable "flags" {
+  description = "Lista de flags"
+  type = list(string)
+  default     = ["flagDefault", "flagDefault"]
+}
+
+variable "flag" {
+  description = "flag a encontrar en la máquina"
+  default     = "flagDefault"
+}
+
 variable "instance_count" {
   description = "Número de instancias a crear"
   type = number
