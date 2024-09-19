@@ -1,10 +1,12 @@
 import React, { useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { nanoid } from 'nanoid';
 
 function ProtectedPage() {
 
     const [courses, setCourses] = useState([""]);
+    const [flags, setFlags] = useState([""]);
     const [instanceCount, setInstanceCount] = useState(1);
     const [message, setMessage] = useState('');
     const [output, setOutput] = useState([]);
@@ -45,11 +47,14 @@ function ProtectedPage() {
   
     const handleDeploy = async () => {
       setLoading(true);
+      const newFlags = Array.from({length: instanceCount}, () => nanoid(16));
+      setFlags(newFlags);
       try {
         console.log(courses)
         const response = await axios.post('http://localhost:8000/deploy', {
           courses: courses.slice(0, instanceCount),
           instance_count: instanceCount,
+          flags: flags.slice(0, instanceCount),
         }, 
         {
             headers: {
@@ -57,7 +62,7 @@ function ProtectedPage() {
                 "Content-Type": "application/json"
             }
         }
-    );
+      );
         setOutput(response.data.ip)
         setMessage(response.data.message);
       } catch (error) {

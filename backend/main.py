@@ -43,6 +43,7 @@ token_dependency = Annotated[dict, Depends(auth.verify_token)]
 class DeploymentRequest(BaseModel):
     courses: list[str]
     instance_count: int
+    flags: list[str]
 
 # Función para ejecutar comandos de Terraform
 def run_terraform_command(command: list):
@@ -60,12 +61,14 @@ def deploy_vm(request: DeploymentRequest, token: token_dependency, db:db_depende
         run_terraform_command(init_command)
         print(request.courses)
         print(request.instance_count)
-        
+        print(request.flags)
+
         # Configurar las variables de Terraform desde los datos del request
         terraform_command = [
             "terraform", "apply", "-auto-approve",
             f"-var=courses={json.dumps(request.courses)}",
-            f"-var=instance_count={request.instance_count}"
+            f"-var=instance_count={request.instance_count}",
+            f"-var=flags={json.dumps(request.flags)}"
         ]
         
 
