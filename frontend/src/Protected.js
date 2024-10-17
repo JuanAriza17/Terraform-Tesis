@@ -2,6 +2,8 @@ import React, { useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { nanoid } from 'nanoid';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 function ProtectedPage() {
 
@@ -17,7 +19,6 @@ function ProtectedPage() {
     useEffect(() => {
         const verifyToken = async () => {
             const token = localStorage.getItem("token");
-            console.log(token);
             try {
                 const response = await axios.get(`http://localhost:8000/auth/verify-token/${token}`);
     
@@ -50,7 +51,7 @@ function ProtectedPage() {
       const newFlags = Array.from({length: instanceCount}, () => nanoid(16));
       setFlags(newFlags);
       try {
-        console.log(courses)
+        console.log(flags)
         const response = await axios.post('http://localhost:8000/deploy', {
           courses: courses.slice(0, instanceCount),
           instance_count: instanceCount,
@@ -95,50 +96,62 @@ function ProtectedPage() {
     };
 
     return (
-        <div>
-          <h1>Desplegar Curso de Ciberseguridad</h1>
-          {courses.map((course, index) => (
-            <div key={index}>
-              <label>
-                Curso {index + 1}:
-                <input
-                  type="text"
-                  value={course}
-                  onChange={(e) => handleCourseChange(index, e.target.value)}
-                />
-              </label>
-              <br />
-            </div>
-          ))}
-          <button onClick={addCourse}>Añadir otro curso</button>
-          <br />
-          <label>
-            Número de instancias:
+      <div className="container mt-5">
+        <h1 className="text-center mb-4">Desplegar Curso de Ciberseguridad</h1>
+        
+        {courses.map((course, index) => (
+          <div className="form-group mb-3" key={index}>
+            <label>Curso {index + 1}:</label>
             <input
-              type="number"
-              value={instanceCount}
-              onChange={(e) => setInstanceCount(Number(e.target.value))}
-              min="1"
+              type="text"
+              className="form-control"
+              value={course}
+              onChange={(e) => handleCourseChange(index, e.target.value)}
             />
-          </label>
-          <br />
-          <button onClick={handleDeploy} disabled={loading}>
+          </div>
+        ))}
+        
+        <button className="btn btn-secondary mb-3" onClick={addCourse} disabled={loading}>
+          Añadir otro curso
+        </button>
+        
+        <div className="form-group mb-3">
+          <label>Número de instancias:</label>
+          <input
+            type="number"
+            className="form-control"
+            value={instanceCount}
+            onChange={(e) => setInstanceCount(Number(e.target.value))}
+            min="1"
+            disabled={loading}
+          />
+        </div>
+        
+        <div className="d-flex gap-2">
+          <button className="btn btn-primary" onClick={handleDeploy} disabled={loading}>
             {loading ? "Desplegando..." : "Desplegar"}
           </button>
-          <button onClick={handleDestroy} disabled={loading}>
+          <button className="btn btn-danger" onClick={handleDestroy} disabled={loading}>
             {loading ? "Destrozando..." : "Destruir"}
           </button>
-          <h2>{message}</h2>
-          <h2>Direcciones IP Públicas:</h2>
-          <ul>
-            {output.length > 0 ? (
-              output.map((ip, index) => <li key={index}>{ip}</li>)
-            ) : (
-              <li>No hay IPs disponibles</li>
-            )}
-          </ul>
         </div>
-      );
+
+        <h2 className="mt-4">{message}</h2>
+
+        <h2 className="mt-4">Direcciones IP Públicas:</h2>
+        <ul className="list-group">
+          {output.length > 0 ? (
+            output.map((ip, index) => (
+              <li className="list-group-item" key={index}>
+                {ip}
+              </li>
+            ))
+          ) : (
+            <li className="list-group-item">No hay IPs disponibles</li>
+          )}
+        </ul>
+      </div>
+    );
 }
 
 export default ProtectedPage;
