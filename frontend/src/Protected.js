@@ -51,11 +51,11 @@ function ProtectedPage() {
       const newFlags = Array.from({length: instanceCount}, () => nanoid(16));
       setFlags(newFlags);
       try {
-        console.log(flags)
+        console.log(newFlags)
         const response = await axios.post('http://localhost:8000/deploy', {
           courses: courses.slice(0, instanceCount),
           instance_count: instanceCount,
-          flags: flags.slice(0, instanceCount),
+          flags: newFlags.slice(0, instanceCount),
         }, 
         {
             headers: {
@@ -132,7 +132,7 @@ function ProtectedPage() {
             {loading ? "Desplegando..." : "Desplegar"}
           </button>
           <button className="btn btn-danger" onClick={handleDestroy} disabled={loading}>
-            {loading ? "Destrozando..." : "Destruir"}
+            {loading ? "Destruyendo..." : "Destruir"}
           </button>
         </div>
 
