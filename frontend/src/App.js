@@ -7,6 +7,10 @@ import Home from "./Platform/Home";
 import Layout from './Extra/Layout';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
+import ProtectedRoute from './Auth/ProtectedRoute';
+import Loading from './Extra/Loading';
+import Challenge from './Platform/Challenge';
+import Results from './Platform/Results';
 
 function App() {
 
@@ -17,7 +21,27 @@ function App() {
           <Route path='/' element={<Home />} />
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
-          <Route path='/protected' element={<Protected />} />
+          
+          <Route path='/protected' element={
+            <ProtectedRoute>
+              <Protected />
+            </ProtectedRoute>
+            } />
+          <Route path='/loading' element={
+            <ProtectedRoute>
+              <Loading />
+            </ProtectedRoute>
+            } />
+          <Route path='/challenge' element={
+            <ProtectedRoute>
+              <Challenge />
+            </ProtectedRoute>
+            } />
+          <Route path='/results' element={
+            <ProtectedRoute>
+              <Results />
+            </ProtectedRoute>
+            } />
         </Routes>
       </Layout>
     </Router>
