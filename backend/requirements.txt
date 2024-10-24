@@ -1,4 +1,7 @@
-bcrypt==4.0.1 
+numpy
+pandas
+cython
+bcrypt==4.0.1
 cryptography
 fastapi
 python-jose
@@ -7,3 +10,5 @@ SQLAlchemy
 uvicorn
 passlib
 pydantic
+scikit-learn
+scikit-surprise
