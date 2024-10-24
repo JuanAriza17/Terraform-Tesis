@@ -1,13 +1,13 @@
 from fastapi import FastAPI, HTTPException, status, Depends
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from database import engine, SessionLocal
+from database.database import engine, SessionLocal
 from sqlalchemy.orm import Session
 from typing import Annotated
 import json
 import subprocess
 import os
-import auth
+import authentication.auth as auth
 
 app = FastAPI()
 app.include_router(auth.router)
@@ -56,14 +56,17 @@ def run_terraform_command(command: list):
 def deploy_vm(request: DeploymentRequest, token: token_dependency, db:db_dependency):
     try:
         # Inicializar Terraform con 'terraform init'
-        init_command = ["terraform", "init"]
+        init_command = ["terraform", "-chdir=terraform/", "init"]
         run_terraform_command(init_command)
         print(request.courses)
         print(request.flags)
 
         # Configurar las variables de Terraform desde los datos del request
         terraform_command = [
-            "terraform", "apply", "-auto-approve",
+            "terraform",
+            "-chdir=terraform/", 
+            "apply", 
+            "-auto-approve",
             f"-var=courses={json.dumps(request.courses)}",
             f"-var=instance_count={len(request.courses)}",
             f"-var=flags={json.dumps(request.flags)}"
@@ -73,7 +76,7 @@ def deploy_vm(request: DeploymentRequest, token: token_dependency, db:db_depende
         # Ejecutar Terraform con 'terraform apply'
         apply_output = run_terraform_command(terraform_command)
         print(apply_output)
-        output_command = ["terraform", "output", "-json"]
+        output_command = ["terraform","-chdir=terraform/", "output", "-json"]
         output_json = run_terraform_command(output_command)
         outputs = json.loads(output_json)
         default_ip = outputs["default_ip"]["value"]
@@ -88,7 +91,7 @@ def deploy_vm(request: DeploymentRequest, token: token_dependency, db:db_depende
 @app.post("/destroy")
 def destroy_vm(token: token_dependency, db:db_dependency):
     try:
-        destroy_command = ["terraform", "destroy", "-auto-approve"]
+        destroy_command = ["terraform", "-chdir=terraform/", "destroy", "-auto-approve"]
         destroy_output = run_terraform_command(destroy_command)
         print(destroy_output)
         return {"message": "Finalización exitosa", "output": destroy_output}

@@ -42,6 +42,7 @@ function ProtectedPage() {
           navigate('/loading', { state: { courses: courses, flags: newFlags, ips: response.data.ip } });
       } catch (error) {
           setMessage('Error al desplegar las máquinas');
+          console.log(error)
       } finally {
           setLoading(false);
       }

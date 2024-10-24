@@ -3,8 +3,8 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
-from models import User
-from database import SessionLocal, engine
+from models.user import User
+from database.database import SessionLocal, engine
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException, status, Depends
