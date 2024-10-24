@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, Link} from 'react-router-dom';
 import axios from 'axios';
 
  function Login() {
@@ -50,10 +50,10 @@ import axios from 'axios';
         <div className="container mt-5">
             <div className="row justify-content-center">
                 <div className="col-md-4">
-                    <h2 className="text-center mb-4">Login</h2>
+                    <h2 className="text-center mb-4">Iniciar Sesión</h2>
                     <form onSubmit={handleSubmit} className="card p-4">
                         <div className="form-group mb-3">
-                            <label htmlFor="username">Username</label>
+                            <label htmlFor="username">Usuario</label>
                             <input 
                                 type='text'
                                 className="form-control"
@@ -63,7 +63,7 @@ import axios from 'axios';
                             />
                         </div>
                         <div className="form-group mb-3">
-                            <label htmlFor="password">Password</label>
+                            <label htmlFor="password">Contraseña</label>
                             <input 
                                 type='password'
                                 className="form-control"
@@ -77,6 +77,9 @@ import axios from 'axios';
                         </button>
                         {error && <p className="text-danger mt-3">{error}</p>}
                     </form>
+                    <div className="row justify-content-center text-center">
+                        <p className="mt-3">¿No tienes una cuenta? <Link to="/register">Regístrate</Link></p>
+                    </div>
                 </div>
             </div>
         </div>

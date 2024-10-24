@@ -21,9 +21,6 @@ function Navbar() {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
-              <Link className="nav-link" to="/">Inicio</Link>
-            </li>
-            <li className="nav-item">
               <Link className="nav-link" to="/courses">Cursos</Link>
             </li>
             {token && (
@@ -47,7 +44,16 @@ function Navbar() {
                 </ul>
               </li>
             </ul>
-          ) : null}
+          ) : (
+            <ul className="navbar-nav">
+              <li className="nav-item">
+                <Link className="nav-link" to="/login">Iniciar sesión</Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/register">Registrarse</Link>
+              </li>
+            </ul>
+          )}
         </div>
       </div>
     </nav>
