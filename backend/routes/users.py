@@ -1,13 +1,17 @@
+import os
+from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
-from models.user import User
-from database.database import SessionLocal, engine
+from database.models import User, UserRole
+from database.database import SessionLocal, engine, get_db
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException, status, Depends
+
+load_dotenv()
 
 router = APIRouter(
     prefix="/auth",
@@ -20,35 +24,55 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 #JWT
-SECRET_KEY = "e3ee2ef818adc67a8a2f03b5bfc39a549db6c76d760519b8f212bc32cf78326d"
-ALGORITHM = "HS256"
-ACCES_TOKEN_EXPIRE_MINUTES = 120
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 120))
 
 class UserCreate(BaseModel):
     username: str
     password: str
+    role: UserRole = UserRole.estudiante
 
 class Token(BaseModel):
     access_token: str
     token_type:str
 
-#Base de datos
-def get_db():
-    db= SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 def get_user_by_username(db: Session, username: str):
     return db.query(User).filter(User.username == username).first()
 
+# Función para crear un estudiante
 def create_user(db: Session, user: UserCreate):
     hashed_password = pwd_context.hash(user.password)
-    db_user = User(username=user.username, hashed_password=hashed_password)
+    db_user = User(username=user.username, hashed_password=hashed_password, role=user.role)
     db.add(db_user)
     db.commit()
     return "complete"
+
+# Función para verificar el rol de admin
+def verify_admin(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    payload = verify_token(token)
+    username = payload.get("sub")
+    user = get_user_by_username(db, username=username)
+    print(user.role)
+    if not user or user.role != UserRole.admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+    return user
+
+# Función para verificar el rol de profesor o admin
+def verify_teacher_or_admin(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    payload = verify_token(token)
+    username = payload.get("sub")
+    user = get_user_by_username(db, username=username)
+    if not user or user.role not in [UserRole.admin, UserRole.profesor]:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+    return user
+
+
+# Ruta para crear un profesor
+@router.post("/create-professor", status_code=status.HTTP_201_CREATED)
+def create_professor( user: UserCreate, db: Session = Depends(get_db), current_user: User = Depends(verify_admin)):
+    user.role = UserRole.profesor
+    return create_user(db=db, user=user)
 
 # Ruta para el registro de usuarios
 @router.post("/", status_code=status.HTTP_201_CREATED)
@@ -56,6 +80,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
     db_user = get_user_by_username(db, username=user.username)
     if db_user:
         raise HTTPException(status_code=400, detail="Username already registered")
+    user.role = UserRole.estudiante
     return create_user(db=db, user=user)
 
 # Función para autenticar usuarios
@@ -100,7 +125,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    access_token_expires = timedelta(minutes=ACCES_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
@@ -111,3 +136,15 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
 async def verify_user_token(token:str):
     verify_token(token=token)
     return {"message": "Token is valid"}
+
+# Función para obtener todos los cursos
+def get_all_users(db: Session):
+    return db.query(User).all()
+
+# Ruta para obtener todos los cursos
+@router.get("/all")  # Usamos response_model para definir el formato de los datos
+def read_courses(db: Session = Depends(get_db)):
+    courses = get_all_users(db)
+    return courses
+
+

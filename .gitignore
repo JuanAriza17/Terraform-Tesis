@@ -1,6 +1,8 @@
 # Local .terraform directories
 **/.terraform/*
 
+.env 
+
 venv/
 **/__pycache__
 # .tfstate files

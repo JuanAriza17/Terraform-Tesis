@@ -1,17 +1,20 @@
 from fastapi import FastAPI, HTTPException, status, Depends
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from database.database import engine, SessionLocal
+from database.database import engine, SessionLocal, Base, get_db
 from sqlalchemy.orm import Session
 from typing import Annotated
 import json
 import subprocess
 import os
-import authentication.auth as auth
+from routes import courses, users, user_course
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-app.include_router(auth.router)
-
+app.include_router(users.router)
+app.include_router(courses.router)
+app.include_router(user_course.router)
 
 origins = [
     "http://localhost:3000",
@@ -25,19 +28,11 @@ app.add_middleware(
     allow_methods=["*"],  # Permitir todos los métodos (POST, GET, etc.)
     allow_headers=["*"],  # Permitir todos los headers
 )
-
-#Base de datos
-def get_db():
-    db= SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
         
 #Dependencias
 
 db_dependency = Annotated[Session, Depends(get_db)]
-token_dependency = Annotated[dict, Depends(auth.verify_token)]
+token_dependency = Annotated[dict, Depends(users.verify_token)]
 
 # Modelo de datos que recibe desde el frontend
 class DeploymentRequest(BaseModel):
