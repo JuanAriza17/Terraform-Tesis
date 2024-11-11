@@ -36,3 +36,8 @@ output "default_ip" {
   description = "Dirección IP pública de la instancia EC2"
   value       = module.default.server_public_ip
 }
+
+output "default_id" {
+  description = "Dirección IP pública de la instancia EC2"
+  value       = module.default.server_id
+}

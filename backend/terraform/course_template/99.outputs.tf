@@ -3,7 +3,7 @@ output "server_public_ip" {
   value = aws_instance.example.*.public_ip
 }
 
-output "server_public_dns" {
+output "server_id" {
   description = "DNS público de la instancia EC2"
-  value = aws_instance.example.*.public_dns
+  value = aws_instance.example.*.id
 }

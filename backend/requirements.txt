@@ -9,8 +9,9 @@ python-multipart
 SQLAlchemy
 uvicorn
 passlib
-pydantics
+pydantic
 scikit-learn
 scikit-surprise
 python-dotenv
 httpx
+boto3

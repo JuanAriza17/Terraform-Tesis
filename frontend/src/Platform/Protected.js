@@ -37,9 +37,10 @@ function ProtectedPage() {
               }
           });
           setMessage("Cursos desplegados");
+          localStorage.setItem("workspace", response.data.workspace);
 
           // Navegar a la página de carga y pasar los datos de cursos y flags
-          navigate('/loading', { state: { courses: courses, flags: newFlags, ips: response.data.ip } });
+          navigate('/loading', { state: { courses: courses, flags: newFlags, ips: response.data.ip, ids: response.data.id } });
       } catch (error) {
           setMessage('Error al desplegar las máquinas');
           console.log(error)

@@ -48,7 +48,7 @@ import axios from 'axios';
 
     return (
         <div className="container mt-5">
-            <div className="row justify-content-center">
+            <div className="row justify-content-center align-middle">
                 <div className="col-md-4">
                     <h2 className="text-center mb-4">Iniciar Sesión</h2>
                     <form onSubmit={handleSubmit} className="card p-4">

@@ -46,20 +46,23 @@ function Challenge() {
     
     const finishChallenge = async () => {
         setLoading(true);
+        const workspace = localStorage.getItem("workspace");
         try {
-          await axios.post('http://localhost:8000/destroy', {}, {
+          await axios.post('http://localhost:8000/destroy', 
+            {workspace: workspace}, 
+            {
               headers: {
                   "Authorization": `Bearer ${localStorage.getItem("token")}`,  // Incluye el token en los encabezados
                   "Content-Type": "application/json"
               }
           });
+          navigate('/results', {state: { results }});  // Redirigir a la página de resultados
         } catch (error) {
-          console.log('Error al destruir la máquina');
+            console.log('Error al destruir la máquina', error.response ? error.response.data : error.message);
         }
         finally
         {
           setLoading(false);
-          navigate('/results', {state: { results }});  // Redirigir a la página de resultados
         }
     };
 

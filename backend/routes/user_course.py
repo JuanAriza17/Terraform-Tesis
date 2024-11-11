@@ -18,7 +18,7 @@ class UserCourseCreate(BaseModel):
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-def enroll_user_in_course(
+def post_user_course(
     enrollment: UserCourseCreate,
     db: Session = Depends(get_db)
 ):

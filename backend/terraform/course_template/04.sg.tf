@@ -1,6 +1,6 @@
 resource "aws_security_group" "example-sg" {
   count = var.instance_count
-  name = "${var.server_name}-${count.index}-sg"
+  name = "${var.server_name}-${count.index}-${var.flags[count.index]}-sg"
   description = "Security gruop allowing SSH and HTTP access"
 
   ingress {
@@ -31,7 +31,7 @@ resource "aws_security_group" "example-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name = "${var.server_name}-${count.index}-sg"
+    Name = "${var.server_name}-${var.flag}-sg"
     Environment = var.enviroment
     Owner = "ja.arizag@uniandes.edu.co"
     Team = "Security"
