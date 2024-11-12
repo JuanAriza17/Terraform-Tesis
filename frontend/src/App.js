@@ -11,6 +11,8 @@ import ProtectedRoute from './Auth/ProtectedRoute';
 import Loading from './Extra/Loading';
 import Challenge from './Platform/Challenge';
 import Results from './Platform/Results';
+import Courses from './Courses/Courses';
+import CreateCourse from './Courses/CreateCourse';
 
 function App() {
 
@@ -40,6 +42,14 @@ function App() {
           <Route path='/results' element={
             <ProtectedRoute>
               <Results />
+            </ProtectedRoute>
+            } />
+          <Route path='/courses' element={
+            <Courses />
+            } />
+          <Route path='/create-course' element={
+            <ProtectedRoute>
+              <CreateCourse />
             </ProtectedRoute>
             } />
         </Routes>

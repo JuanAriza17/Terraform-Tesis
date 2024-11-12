@@ -49,6 +49,7 @@ function Register() {
 
                 if (responseLoginOK) {
                     localStorage.setItem('token', loginResponse.data.access_token);
+                    localStorage.setItem("role", loginResponse.data.role);
                     setLoading(false);
                     navigate('/protected'); // Redirigir a la página protegida
                 } else {

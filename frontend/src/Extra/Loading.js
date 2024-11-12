@@ -26,9 +26,7 @@ function Loading() {
             }
         };
 
-        const intervalId = setInterval(checkMachinesInitialization, 5000); // Revisa cada 5 segundos
-
-        return () => clearInterval(intervalId); // Limpiar el intervalo cuando el componente se desmonte
+        checkMachinesInitialization();
     }, [ids]);
 
     useEffect(() => {

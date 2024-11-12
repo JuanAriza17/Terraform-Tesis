@@ -36,6 +36,7 @@ class UserCreate(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type:str
+    role:str
 
 def get_user_by_username(db: Session, username: str):
     return db.query(User).filter(User.username == username).first()
@@ -130,7 +131,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "role": user.role}
 
 @router.get("/verify-token/{token}")
 async def verify_user_token(token:str):

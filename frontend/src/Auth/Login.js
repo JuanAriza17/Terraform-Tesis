@@ -34,6 +34,7 @@ import axios from 'axios';
             const responseOK = response && response.status === 200 && response.statusText === 'OK';
             if (responseOK) {
                 localStorage.setItem('token', response.data.access_token);
+                localStorage.setItem("role", response.data.role);
                 navigate('/protected');
             } else {
                 setError("Authentication failed!");
