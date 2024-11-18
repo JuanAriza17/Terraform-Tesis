@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { Button } from 'react-bootstrap';
 
 function Challenge() {
     const [inputFlags, setInputFlags] = useState([]);
@@ -8,7 +9,12 @@ function Challenge() {
     const [timer, setTimer] = useState(0);
     const [previousTime, setPreviousTime] = useState(0); // Para rastrear el tiempo del curso anterior
     const [loading, setLoading] = useState(false);
+    const [started, setStarted] = useState(false);
+    const [finished, setFinished] = useState(false);
 
+    const startChallenge = () => {
+        setStarted(true);
+    };
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -16,10 +22,14 @@ function Challenge() {
     const { courses = [], flags = [], ips = [] } = location.state || {};  
 
     useEffect(() => {
+        let interval;
         setInputFlags(Array(courses.length).fill(""));
-        const interval = setInterval(() => setTimer((prev) => prev + 1), 1000);
+        if (started && !finished)
+        {
+            interval = setInterval(() => setTimer((prev) => prev + 1), 1000);
+        }
         return () => clearInterval(interval);
-    }, [courses]);
+    }, [started, finished, courses]);
 
     const handleFlagChange = (index, value) => {
         const newFlags = [...inputFlags];
@@ -46,6 +56,7 @@ function Challenge() {
     
     const finishChallenge = async () => {
         setLoading(true);
+        setFinished(true);
         const workspace = localStorage.getItem("workspace");
         try {
           await axios.post('http://localhost:8000/destroy', 
@@ -56,6 +67,7 @@ function Challenge() {
                   "Content-Type": "application/json"
               }
           });
+          localStorage.removeItem("workspace");
           navigate('/results', {state: { results }});  // Redirigir a la página de resultados
         } catch (error) {
             console.log('Error al destruir la máquina', error.response ? error.response.data : error.message);
@@ -69,7 +81,11 @@ function Challenge() {
     return (
         <div className="container mt-5">
             <h2>Desafío de Cursos</h2>
-            {courses.map((course, index) => {
+            {!started?(
+                <Button variant="success" onClick={startChallenge}>Empezar</Button>
+            ) : (
+                <div>
+                    {courses.map((course, index) => {
                 const result = results.find(result => result.course === course);
                 const isCorrect = result && result.success;
                 const isSurrendered = result && !result.success;
@@ -118,6 +134,9 @@ function Challenge() {
             <button onClick={finishChallenge} disabled={loading} className="btn btn-primary mt-3">
                 {loading ? "Finalizando..." : "Finalizar"}
             </button>
+                </div>
+            )}
+            
         </div>
     );
 }
