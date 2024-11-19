@@ -6,7 +6,7 @@ import qs from 'qs';
 function Loading() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { courses = [], flags = [], ips = [], ids = [] } = location.state || {};
+    const { courses = [], flags = [], ips = [], ids = [], course_ids = [] } = location.state || {};
     const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
@@ -26,15 +26,16 @@ function Loading() {
             }
         };
 
-        checkMachinesInitialization();
+        const intervalId = setInterval(checkMachinesInitialization, 5000); // Revisa cada 5 segundos
+        return () => clearInterval(intervalId); // Limpiar el intervalo cuando el componente se desmonte
     }, [ids]);
 
     useEffect(() => {
         if (isInitialized) {
             // Navegar a la página de desafío y pasar los cursos y flags cuando las máquinas estén inicializadas
-            navigate('/challenge', { state: { courses, flags, ips, ids } });
+            navigate('/challenge', { state: { courses, flags, ips, course_ids } });
         }
-    }, [isInitialized, navigate, courses, flags, ips, ids]);
+    }, [isInitialized, navigate, courses, flags, ips, course_ids]);
 
     return (
         <div className="d-flex justify-content-center align-items-center">

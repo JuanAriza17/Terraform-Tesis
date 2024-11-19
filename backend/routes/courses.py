@@ -22,6 +22,7 @@ GITHUB_REPO = os.getenv("GITHUB_REPO")
 # Modelo para recibir datos del curso
 class CourseCreate(BaseModel):
     title: str
+    alias: str
     description: str
     type: str
     team: CourseTeam
@@ -55,6 +56,7 @@ async def add_course_to_github(files: List[UploadFile], title: str, difficulty: 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_course(
     title: str = Form(...),
+    alias: str = Form(...),
     description: str = Form(...),
     type: str = Form(...),
     team: CourseTeam = Form(...),
@@ -71,6 +73,7 @@ async def create_course(
         # Si el curso fue agregado a GitHub, procedemos a agregarlo a la base de datos
         db_course = Course(
             title=title,
+            alias=alias,
             description=description,
             type=type,
             team=team,
@@ -102,19 +105,6 @@ def read_courses(db: Session = Depends(get_db)):
     courses = get_all_courses(db)
     return courses
 
-# Función para eliminar todos los cursos
-def delete_all_courses(db: Session):
-    courses = db.query(Course).all()
-    for course in courses:
-        db.delete(course)
-    db.commit()
-
-# Ruta para eliminar todos los cursos
-@router.delete("/drop", status_code=204)
-def remove_all_courses(db: Session = Depends(get_db)):
-    delete_all_courses(db)
-    return {"message": "All courses deleted successfully"}
-
 @router.post("/xd", status_code=status.HTTP_201_CREATED)
 async def create_course(
     course: CourseCreate,
@@ -126,6 +116,7 @@ async def create_course(
         # Si el curso fue agregado a GitHub, procedemos a agregarlo a la base de datos
         db_course = Course(
             title=course.title,
+            alias=course.alias,
             description=course.description,
             type=course.type,
             team = course.team,

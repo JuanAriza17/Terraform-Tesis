@@ -135,19 +135,13 @@ def destroy_vm(request:DestroyRequest, token: token_dependency, db:db_dependency
 
 @app.get("/check_instances")
 async def check_instances(instance_ids: List[str] = Query(None)):
-    all_initialized = False
-    while not all_initialized:
-        all_initialized = True
-        for instance_id in instance_ids:
-            response = ec2.describe_instance_status(InstanceIds=[instance_id])
-            instance_status = response['InstanceStatuses'][0] if response['InstanceStatuses'] else None
-            if instance_status:
-                status = instance_status['InstanceState']['Name']
-                checks = instance_status['InstanceStatus']['Status']
-                if status != 'running' or checks != 'ok':
-                    all_initialized = False
-                    break  # Salir del loop si alguna instancia no está lista
-        if not all_initialized:
-            time.sleep(10)  # Espera 10 segundos antes de volver a comprobar
-
+    all_initialized = True
+    for instance_id in instance_ids:
+        response = ec2.describe_instance_status(InstanceIds=[instance_id])
+        instance_status = response['InstanceStatuses'][0] if response['InstanceStatuses'] else None
+        if instance_status:
+            status = instance_status['InstanceState']['Name']
+            checks = instance_status['InstanceStatus']['Status']
+            if status != 'running' or checks != 'ok':
+                return {"initialized": False} 
     return {"initialized": True} 

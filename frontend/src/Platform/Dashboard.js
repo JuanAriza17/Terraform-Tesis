@@ -5,7 +5,7 @@ import { nanoid } from 'nanoid';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Card, Button, Row, Col, Modal } from 'react-bootstrap';
 
-function ProtectedPage() {
+function Dashboard() {
     const [courses, setCourses] = useState([]);
     const [selectedCourses, setSelectedCourses] = useState([]);
     const [message, setMessage] = useState('');
@@ -34,12 +34,12 @@ function ProtectedPage() {
     const handleDeploy = async () => {
         setLoading(true);
         const newFlags = selectedCourses.map(() => nanoid(16));
-        const titles = selectedCourses.map((course) => (course.title+"_"+course.difficulty)); // Cambiar por alias
-        console.log(titles);
+        const alias = selectedCourses.map((course) => (course.alias)); // Cambiar por alias
+        const ids = selectedCourses.map((course) => (course.id))
         try {
             console.log(selectedCourses);
             const response = await axios.post('http://localhost:8000/deploy', {
-                courses: titles,
+                courses: alias,
                 flags: newFlags,
             }, {
                 headers: {
@@ -49,7 +49,7 @@ function ProtectedPage() {
             });
             setMessage("Cursos desplegados");
             localStorage.setItem("workspace", response.data.workspace);
-            navigate('/loading', { state: { courses: titles, flags: newFlags, ips: response.data.ip, ids: response.data.id } });
+            navigate('/loading', { state: { courses: alias, flags: newFlags, ips: response.data.ip, ids: response.data.id, course_ids: ids } });
         } catch (error) {
             setMessage('Error al desplegar las máquinas');
             console.error(error.response);
@@ -152,7 +152,7 @@ function ProtectedPage() {
                     <p>{modalCourse?.description}</p>
                     <p><strong>Equipo:</strong> {modalCourse?.team}</p>
                     <p><strong>Dificultad:</strong> {renderDifficultyStars(modalCourse?.difficulty)}</p>
-                    <p><strong>Tiempo estimado:</strong> {modalCourse?.estimated_time / 60} minutos</p>
+                    <p><strong>Tiempo estimado:</strong> {(modalCourse?.estimated_time / 60).toFixed(2)} minutos</p>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={closeDetails}>Cerrar</Button>
@@ -162,4 +162,4 @@ function ProtectedPage() {
     );
 }
 
-export default ProtectedPage;
+export default Dashboard;

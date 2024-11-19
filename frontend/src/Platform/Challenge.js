@@ -19,7 +19,7 @@ function Challenge() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const { courses = [], flags = [], ips = [] } = location.state || {};  
+    const { courses = [], flags = [], ips = [] , course_ids = []} = location.state || {};  
 
     useEffect(() => {
         let interval;
@@ -37,21 +37,67 @@ function Challenge() {
         setInputFlags(newFlags);
     };
 
-    const verifyFlag = (index) => {
+    const verifyFlag = async (index) => {
         const isCorrect = inputFlags[index] === flags[index];
         const currentTime = timer - previousTime; // Calcular el tiempo del curso actual
+        const userId = localStorage.getItem("id"); // Obtén el ID del usuario autenticado
+        console.log(course_ids[index])
+
         if (isCorrect) {
             setResults((prev) => [...prev, { course: courses[index], time: currentTime, success: true }]);
             setPreviousTime(timer); // Actualizar el tiempo anterior al tiempo actual
+            // Realizar la solicitud POST
+            try {
+                await axios.post(
+                    "http://localhost:8000/user-courses/",
+                    {
+                        user_id: userId,
+                        course_id: course_ids[index], // Asegúrate de que `courses` contenga los IDs de los cursos
+                        time_spent: currentTime,
+                        completed: true,
+                    },
+                    {
+                        headers: {
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+            } catch (error) {
+                console.error("Error al registrar la finalización del curso:", error.response?.data || error.message);
+            }
         } else {
             alert("Flag incorrecta. ¡Sigue intentando!");
         }
     };
 
-    const surrender = (index) => {
+    const surrender = async (index) => {
         const currentTime = timer - previousTime; // Calcular el tiempo del curso actual
+        const userId = localStorage.getItem("id"); // Obtén el ID del usuario autenticado
+
         setResults((prev) => [...prev, { course: courses[index], time: currentTime, success: false }]);
         setPreviousTime(timer); // Actualizar el tiempo anterior al tiempo actual
+
+         // Realizar la solicitud POST
+        try {
+            await axios.post(
+                "http://localhost:8000/user-courses/",
+                {
+                    user_id: userId,
+                    course_id: course_ids[index],
+                    time_spent: currentTime,
+                    completed: false,
+                },
+                {
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+        } catch (error) {
+            console.error("Error al registrar la rendición del curso:", error.response?.data || error.message);
+        }
     };
     
     const finishChallenge = async () => {
@@ -80,11 +126,19 @@ function Challenge() {
 
     return (
         <div className="container mt-5">
-            <h2>Desafío de Cursos</h2>
+            
             {!started?(
-                <Button variant="success" onClick={startChallenge}>Empezar</Button>
+                <div>
+                    <div className='d-flex justify-content-center'>
+                        <h2>Inicia cuando estes listo</h2>
+                    </div>
+                        <div className='d-flex justify-content-center '>
+                        <Button variant="success" onClick={startChallenge} className="mt-4" size="lg">Empezar</Button>
+                    </div>
+                </div>
             ) : (
                 <div>
+                    <h2>Desafío de Cursos</h2>
                     {courses.map((course, index) => {
                 const result = results.find(result => result.course === course);
                 const isCorrect = result && result.success;
@@ -94,7 +148,7 @@ function Challenge() {
                 return (
                     <div key={index} className="mb-4">
                         <h3>
-                            {course} <span className="badge bg-info">{ips[index]}</span> {/* Mostrar IP junto al curso */}
+                            {course} <span className="badge bg-info">{ips[index]}</span>
                         </h3>
                         <div className="input-group">
                             <input

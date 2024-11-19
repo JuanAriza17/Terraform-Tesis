@@ -49,9 +49,9 @@ function Register() {
 
                 if (responseLoginOK) {
                     localStorage.setItem('token', loginResponse.data.access_token);
-                    localStorage.setItem("role", loginResponse.data.role);
+                    localStorage.setItem("id", response.data.id);
                     setLoading(false);
-                    navigate('/protected'); // Redirigir a la página protegida
+                    navigate('/principal'); // Redirigir a la página protegida
                 } else {
                     setError('Login after registration failed!');
                 }

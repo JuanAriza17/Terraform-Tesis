@@ -31,6 +31,7 @@ class Course(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String)
+    alias = Column(String)
     description = Column(String)
     type = Column(String)
     team = Column(Enum(CourseTeam))

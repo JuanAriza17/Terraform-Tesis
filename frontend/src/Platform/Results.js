@@ -1,11 +1,12 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
-
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Button } from 'react-bootstrap';
 
 function Results() {
     
     const location = useLocation();
     const { results = [] } = location.state || {};  // Recuperar los resultados
+    const navigate = useNavigate();
 
     return (
         <div className="container mt-5">
@@ -17,6 +18,10 @@ function Results() {
                     </li>
                 ))}
             </ul>
+            <div className='d-flex justify-content-center '>
+                <Button variant="success" onClick={() => navigate("/principal")} className="mt-4" size="lg">Volver al Inicio</Button>
+            </div>
+
         </div>
     );
 }

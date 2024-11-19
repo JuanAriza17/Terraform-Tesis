@@ -35,8 +35,8 @@ class UserCreate(BaseModel):
 
 class Token(BaseModel):
     access_token: str
-    token_type:str
-    role:str
+    token_type: str
+    id: int
 
 def get_user_by_username(db: Session, username: str):
     return db.query(User).filter(User.username == username).first()
@@ -50,23 +50,20 @@ def create_user(db: Session, user: UserCreate):
     return "complete"
 
 # Función para verificar el rol de admin
-def verify_admin(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def verify_admin(token: str = Depends(oauth2_scheme)):
     payload = verify_token(token)
-    username = payload.get("sub")
-    user = get_user_by_username(db, username=username)
-    print(user.role)
-    if not user or user.role != UserRole.admin:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
-    return user
+    role = payload.get("role")
+    if role != UserRole.admin.value:
+        raise "Is not"
+    return "User is admin"
 
 # Función para verificar el rol de profesor o admin
-def verify_teacher_or_admin(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def verify_teacher_or_admin(token: str = Depends(oauth2_scheme)):
     payload = verify_token(token)
-    username = payload.get("sub")
-    user = get_user_by_username(db, username=username)
-    if not user or user.role not in [UserRole.admin, UserRole.profesor]:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
-    return user
+    role = payload.get("role")
+    if role not in [UserRole.admin.value, UserRole.profesor.value]:
+        return "Is not"
+    return "User is professor or admin"
 
 
 # Ruta para crear un profesor
@@ -128,23 +125,33 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": user.username, "role":user.role.value}, expires_delta=access_token_expires
     )
     
-    return {"access_token": access_token, "token_type": "bearer", "role": user.role}
+    return {"access_token": access_token, "token_type": "bearer", "id": user.id}
 
 @router.get("/verify-token/{token}")
 async def verify_user_token(token:str):
     verify_token(token=token)
     return {"message": "Token is valid"}
 
-# Función para obtener todos los cursos
+@router.get("/verify-profesor-admin/{token}")
+async def verify_p_or_a(token:str):
+    msg = verify_teacher_or_admin(token=token)
+    return {"message": msg}
+
+@router.get("/verify-admin/{token}")
+async def verify_a(token:str):
+    verify_token(token=token)
+    return {"message": "User is admin"}
+
+# Función para obtener todos los usuarios
 def get_all_users(db: Session):
     return db.query(User).all()
 
-# Ruta para obtener todos los cursos
-@router.get("/all")  # Usamos response_model para definir el formato de los datos
-def read_courses(db: Session = Depends(get_db)):
+# Ruta para obtener todos los usuarios
+@router.get("/all")
+def read_usuarios(db: Session = Depends(get_db)):
     courses = get_all_users(db)
     return courses
 

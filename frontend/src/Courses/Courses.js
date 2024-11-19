@@ -7,10 +7,9 @@ const Courses = () => {
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [sortCriteria, setSortCriteria] = useState('title'); // Criterio inicial de orden
-
+  const [proffesorOrAdmin, setIsProfessorOrAdmin] = useState(false);
   const navigate = useNavigate(); 
-
-  const userRole = localStorage.getItem('role'); // Obtener el rol desde localStorage
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     axios.get('http://localhost:8000/courses/all')
@@ -18,7 +17,20 @@ const Courses = () => {
         setCourses(sortCourses(response.data, sortCriteria));
       })
       .catch(error => console.error("Error loading courses:", error));
-  }, [sortCriteria]);
+    
+    const verifyPermissions = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8000/auth/verify-profesor-admin/${token}`);
+        setIsProfessorOrAdmin(response?.data?.message === "User is professor or admin");
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    if (token)
+    {
+      verifyPermissions();
+    }
+  }, [sortCriteria, token]);
 
   // Función para ordenar cursos
   const sortCourses = (courses, criteria) => {
@@ -87,7 +99,7 @@ const Courses = () => {
             <option value="estimatedTime">Ordenar por Tiempo Estimado</option>
           </Form.Select>
         </Col>
-        {(userRole === 'admin' || userRole === 'profesor') && (
+        {(proffesorOrAdmin) && (
             <Col md={4} className="d-flex justify-content-center">
                 <Button variant="primary" onClick={handleCreateCourse}>Crear Curso</Button>
             </Col>
@@ -112,7 +124,7 @@ const Courses = () => {
                 <p><strong>Tipo:</strong> {course.type}</p>
                 <p><strong>Team:</strong> {course.team}</p>
                 <p><strong>Dificultad:</strong> {renderDifficultyStars(course.difficulty)}</p>
-                <p><strong>Tiempo Estimado:</strong> {course.estimated_time / 60} minutos</p>
+                <p><strong>Tiempo Estimado:</strong> {(course.estimated_time / 60).toFixed(2)} minutos</p>
               </Card.Body>
             </Card>
           ))}
@@ -130,7 +142,7 @@ const Courses = () => {
                 <p><strong>Tipo:</strong> {selectedCourse.type}</p>
                 <p><strong>Team:</strong> {selectedCourse.team}</p>
                 <p><strong>Dificultad:</strong> {renderDifficultyStars(selectedCourse.difficulty)}</p>
-                <p><strong>Tiempo Estimado:</strong> {selectedCourse.estimated_time / 60} minutos</p>
+                <p><strong>Tiempo Estimado:</strong> {(selectedCourse.estimated_time / 60).toFixed(2)} minutos</p>
               </Card.Body>
             </Card>
           ) : (

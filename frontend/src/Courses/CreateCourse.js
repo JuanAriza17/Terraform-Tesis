@@ -6,6 +6,7 @@ import { FaTimes } from 'react-icons/fa';
 
 const CreateCourse = () => {
   const [title, setTitle] = useState('');
+  const [alias, setAlias] = useState('');
   const [description, setDescription] = useState('');
   const [type, setType] = useState('');
   const [team, setTeam] = useState('');
@@ -14,15 +15,28 @@ const CreateCourse = () => {
   const [files, setFiles] = useState([]);
   
   const navigate = useNavigate();
-  const userRole = localStorage.getItem("role");
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
+
+    const verifyPermissions = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8000/auth/verify-profesor-admin/${token}`);
+        const cumple = response?.data?.message === "User is professor or admin";
+        return cumple;
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    const cumple = verifyPermissions();
+    
     // Verificar si el usuario tiene el rol adecuado
-    if (userRole !== 'admin' && userRole !== 'profesor') {
+    if (!cumple) {
       // Redirigir a la página de cursos si el usuario no tiene el rol adecuado
       navigate('/courses');
     }
-  }, [userRole, navigate]);
+  }, [navigate, token]);
 
   const handleFileChange = (e) => {
     console.log(e.target.files)
@@ -39,6 +53,7 @@ const CreateCourse = () => {
 
     const formData = new FormData();
     formData.append('title', title);
+    formData.append('alias', alias);
     formData.append('description', description);
     formData.append('type', type);
     formData.append('team', team);
@@ -74,6 +89,17 @@ const CreateCourse = () => {
             placeholder="Ingrese el título del curso"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+        </Form.Group>
+
+        <Form.Group controlId="formTitle">
+          <Form.Label>Nombre de la carpeta</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Ingrese el nombre de la carpeta"
+            value={alias}
+            onChange={(e) => setAlias(e.target.value)}
             required
           />
         </Form.Group>
