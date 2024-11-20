@@ -10,13 +10,12 @@ const Principal = () => {
   const navigate = useNavigate();
   const userId = localStorage.getItem("id");
 
-  const itemsPerPage = 4;
+  const itemsPerPage = (recentCourses.length>4)?4:recentCourses.length;
 
   // Cargar datos desde el backend
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        console.log(localStorage.getItem("token"))
         // Petición para cursos recientes
         const recentResponse = await axios.get(`http://localhost:8000/user-courses/${userId}/courses`, {
             headers: {
@@ -27,8 +26,15 @@ const Principal = () => {
         setRecentCourses(recentResponse.data);
 
         // Petición para cursos recomendados
-        const recommendedResponse = await axios.get(`http://localhost:8000/recommendations/${userId}`);
-        setRecommendedCourses(recommendedResponse.data);
+        const recommendedResponse = await axios.get(`http://localhost:8000/recommendations/${userId}`, {
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                "Content-Type": "application/json",
+            }
+        });
+        if (recommendedResponse.data.length>0) {
+          setRecommendedCourses(recommendedResponse.data);
+        }
       } catch (error) {
         console.error(error);
       }
@@ -61,6 +67,7 @@ const Principal = () => {
         return '#ffffff'; // Blanco neutro
     }
   };
+
 
   const renderDifficultyStars = (difficulty) => {
     return '★'.repeat(difficulty) + '☆'.repeat(5 - difficulty);

@@ -34,21 +34,14 @@ function Navbar() {
               <Link className="nav-link" to="/courses">Cursos</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/help">Ayuda</Link>
+              <Link className="nav-link" to="/help">Sobre nosotros</Link>
             </li>
           </ul>
           {token ? (
             <ul className="navbar-nav">
-              <li className="nav-item dropdown">
-                <a className="nav-link dropdown-toggle" href="/" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Mi cuenta
-                </a>
-                <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                  <li><Link className="dropdown-item" to="/profile">Perfil</Link></li>
-                  <li><button className="dropdown-item" onClick={handleLogout}>Cerrar sesión</button></li>
-                </ul>
-              </li>
+              <li className="nav-item"><button className="nav-link" onClick={handleLogout}>Cerrar sesión</button></li>
             </ul>
+            
           ) : (
             <ul className="navbar-nav">
               <li className="nav-item">

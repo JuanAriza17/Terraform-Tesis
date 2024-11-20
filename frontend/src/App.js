@@ -14,6 +14,7 @@ import Results from './Platform/Results';
 import Principal from './Platform/Principal';
 import Courses from './Courses/Courses';
 import CreateCourse from './Courses/CreateCourse';
+import Help from './Platform/Help';
 
 function App() {
 
@@ -24,7 +25,8 @@ function App() {
           <Route path='/' element={<Home />} />
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
-          
+          <Route path='/help' element={<Help />} />
+
           <Route path='/dashboard' element={
             <ProtectedRoute>
               <Dashboard />

@@ -15,4 +15,4 @@ scikit-surprise
 python-dotenv
 httpx
 boto3
-apscheduler
+schedule
