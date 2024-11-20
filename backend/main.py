@@ -1,7 +1,11 @@
 from fastapi import FastAPI, HTTPException, status, Depends, Query
+from routes import courses, users, user_course, recommendation
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from database.database import engine, SessionLocal, Base, get_db
+from contextlib import asynccontextmanager
+from recommendation.recommendation import load_models
+from recommendation.scheduler import schedule_training
 from sqlalchemy.orm import Session
 from typing import Annotated, List
 import json
@@ -9,17 +13,33 @@ import subprocess
 import boto3
 import uuid
 import os
-from routes import courses, users, user_course
 import time
 
 Base.metadata.create_all(bind=engine)
 
 ec2 = boto3.client("ec2")
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global knn, svd
+    # Code to run on startup
+    print("Loading models...")
+    schedule_training()
+    print("Models loaded successfully.")
+    
+    yield  # The application runs while this generator yields control
+    
+    # Code to run on shutdown (optional cleanup)
+    print("Shutting down application...")
+
+# Pass the lifespan context manager to the FastAPI app
+app = FastAPI(lifespan=lifespan)
+
 app.include_router(users.router)
 app.include_router(courses.router)
 app.include_router(user_course.router)
+app.include_router(recommendation.router)
+
 
 origins = [
     "http://localhost:3000",

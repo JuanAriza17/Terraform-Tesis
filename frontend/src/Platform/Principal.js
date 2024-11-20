@@ -27,7 +27,7 @@ const Principal = () => {
         setRecentCourses(recentResponse.data);
 
         // Petición para cursos recomendados
-        const recommendedResponse = await axios.get("/api/courses/recommended");
+        const recommendedResponse = await axios.get(`http://localhost:8000/recommendations/${userId}`);
         setRecommendedCourses(recommendedResponse.data);
       } catch (error) {
         console.error(error);
@@ -73,7 +73,7 @@ const Principal = () => {
           <h4>Últimos Cursos Realizados</h4>
           <div className="d-flex justify-content-center align-items-center">
             {recentCourses.length === 0? (
-                <h5>No se han ealizado cursos recientemente</h5>
+                <h5>No se han realizado cursos recientemente</h5>
             ):(
                 <div className="d-flex align-items-center justify-content-center">
                     {/* Botón "Anterior" */}
