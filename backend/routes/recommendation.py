@@ -55,4 +55,4 @@ def get_recommendations(user_id: int, token: token_dependency, db: db_dependency
         # Eliminar columnas codificadas
         recommended_courses = recommended_courses.drop(columns=encoder.get_feature_names_out(['type', 'team']))
         
-    return recommended_courses.to_dict(orient="records")
+    return recommended_courses.to_dict(orient="records")[:4]

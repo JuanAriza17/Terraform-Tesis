@@ -37,7 +37,6 @@ function Dashboard() {
         const alias = selectedCourses.map((course) => (course.alias)); // Cambiar por alias
         const ids = selectedCourses.map((course) => (course.id))
         try {
-            console.log(selectedCourses);
             const response = await axios.post('http://localhost:8000/deploy', {
                 courses: alias,
                 flags: newFlags,
