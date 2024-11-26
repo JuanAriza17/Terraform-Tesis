@@ -95,7 +95,7 @@ def decode_onehot(processed_courses_df, encoder):
     return decoded_df
 
 
-def hybrid_recommendations_filtered(user_id, knn_model, svd_model, courses_df, user_courses_df, encoder, weight_knn=0.5, weight_svd=0.5):
+def hybrid_recommendations_filtered(user_id, knn_model, svd_model, courses_df, user_courses_df, encoder, weight_knn=0.7, weight_svd=0.3):
     # Preprocesar los datos de cursos
     courses_df, _ = preprocess_courses(courses_df, encoder)
     
@@ -129,14 +129,14 @@ def hybrid_recommendations_filtered(user_id, knn_model, svd_model, courses_df, u
     # Verificar si hay cursos para recomendar
     if filtered_courses_df.empty:
         return pd.DataFrame([])
-
+    
     # Obtener cursos similares con KNN
     course_features = filtered_courses_df.drop(columns=['course_id', 'title', 'description'])
     _, knn_indices = knn_model.kneighbors(course_features)
     filtered_courses_df['knn_score'] = [
         1 / (1 + np.mean(distances)) for distances in knn_indices
     ]
-
+    
     # Predecir con SVD para todos los cursos no completados
     svd_scores = []
     for _, row in filtered_courses_df.iterrows():

@@ -10,7 +10,6 @@ function Challenge() {
     const [previousTime, setPreviousTime] = useState(0); // Para rastrear el tiempo del curso anterior
     const [loading, setLoading] = useState(false);
     const [started, setStarted] = useState(false);
-    const [finished, setFinished] = useState(false);
 
     const startChallenge = () => {
         setStarted(true);
@@ -21,15 +20,17 @@ function Challenge() {
 
     const { courses = [], flags = [], ips = [] , course_ids = []} = location.state || {};  
 
+    const isAllCompleted = results.length === courses.length; // Verificar si todos los retos están completos
+
     useEffect(() => {
         let interval;
         setInputFlags(Array(courses.length).fill(""));
-        if (started && !finished)
+        if (started && !isAllCompleted)
         {
             interval = setInterval(() => setTimer((prev) => prev + 1), 1000);
         }
         return () => clearInterval(interval);
-    }, [started, finished, courses]);
+    }, [started, courses, isAllCompleted]);
 
     const handleFlagChange = (index, value) => {
         const newFlags = [...inputFlags];
@@ -102,7 +103,6 @@ function Challenge() {
     
     const finishChallenge = async () => {
         setLoading(true);
-        setFinished(true);
         const workspace = localStorage.getItem("workspace");
         try {
           await axios.post('http://localhost:8000/destroy', 
@@ -185,7 +185,7 @@ function Challenge() {
             <div className="mt-4">
                 <h4>Tiempo: {timer} segundos</h4>
             </div>
-            <button onClick={finishChallenge} disabled={loading} className="btn btn-primary mt-3">
+            <button onClick={finishChallenge} disabled={!isAllCompleted || loading} className="btn btn-primary mt-3">
                 {loading ? "Finalizando..." : "Finalizar"}
             </button>
                 </div>

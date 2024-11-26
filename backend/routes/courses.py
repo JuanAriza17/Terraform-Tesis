@@ -129,3 +129,28 @@ async def create_course(
         db.refresh(db_course)  # Refrescamos el objeto con los datos de la base de datos
 
         return db_course  # Retornamos el curso creado
+
+@router.put("/{course_id}/description", status_code=status.HTTP_200_OK)
+async def update_course_description(
+    course_id: int,
+    new_description: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(verify_teacher_or_admin)  # Solo profesores y admins
+):
+    # Buscar el curso por ID
+    db_course = db.query(Course).filter(Course.id == course_id).first()
+
+    if not db_course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Course with id {course_id} not found"
+        )
+
+    # Actualizar la descripción
+    db_course.description = new_description
+
+    # Confirmar cambios en la base de datos
+    db.commit()
+    db.refresh(db_course)  # Actualizar el objeto con la base de datos
+
+    return {"message": "Description updated successfully", "course": db_course}

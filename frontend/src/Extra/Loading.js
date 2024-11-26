@@ -39,7 +39,7 @@ function Loading() {
 
     return (
         <div className="d-flex justify-content-center align-items-center">
-            <div className="text-center align-items-center ">
+            <div className="text-center align-items-center mt-5 pt-5">
                 <h2 className="display-4">Cargando...</h2>
                 <div className="spinner-border" role="status" style={{ width: '5rem', height: '5rem' }}>
                     <span className="visually-hidden">Loading...</span>
