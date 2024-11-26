@@ -49,7 +49,7 @@ function Register() {
 
                 if (responseLoginOK) {
                     localStorage.setItem('token', loginResponse.data.access_token);
-                    localStorage.setItem("id", response.data.id);
+                    localStorage.setItem("id", loginResponse.data.id);
                     setLoading(false);
                     navigate('/principal'); // Redirigir a la página protegida
                 } else {

@@ -122,7 +122,7 @@ def hybrid_recommendations_filtered(user_id, knn_model, svd_model, courses_df, u
         problematic_courses = completed_courses[
             (completed_courses['time_spent'] > completed_courses['estimated_time'])
         ]
-        excluded_course_ids = set(completed_courses['course_id'])
+        excluded_course_ids = set(completed_courses[(completed_courses["time_spent"] <= completed_courses["estimated_time"] ) ]['course_id'])
 
         # Filtrar cursos no completados
         filtered_courses_df = courses_df[~courses_df['course_id'].isin(excluded_course_ids)].copy()
