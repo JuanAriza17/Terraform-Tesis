@@ -10,15 +10,18 @@ function Challenge() {
     const [previousTime, setPreviousTime] = useState(0); // Para rastrear el tiempo del curso anterior
     const [loading, setLoading] = useState(false);
     const [started, setStarted] = useState(false);
+    const [startTimestamp, setStartTimestamp] = useState(0); // Variable para el timestamp inicial
+
 
     const startChallenge = () => {
         setStarted(true);
+        setStartTimestamp(performance.now()); // Guardar el timestamp inicial
     };
 
     const navigate = useNavigate();
     const location = useLocation();
 
-    const { courses = [], flags = [], ips = [] , course_ids = []} = location.state || {};  
+    const { titles = [], courses = [], flags = [], ips = [] , course_ids = []} = location.state || {};  
 
     const isAllCompleted = results.length === courses.length; // Verificar si todos los retos están completos
 
@@ -27,10 +30,14 @@ function Challenge() {
         setInputFlags(Array(courses.length).fill(""));
         if (started && !isAllCompleted)
         {
-            interval = setInterval(() => setTimer((prev) => prev + 1), 1000);
+            interval = setInterval(() => {
+                // Calcular el tiempo transcurrido usando el timestamp inicial
+                const elapsed = Math.floor((performance.now() - startTimestamp) / 1000);
+                setTimer(elapsed);
+            }, 1000);
         }
         return () => clearInterval(interval);
-    }, [started, courses, isAllCompleted]);
+    }, [started, courses, isAllCompleted, startTimestamp]);
 
     const handleFlagChange = (index, value) => {
         const newFlags = [...inputFlags];
@@ -148,7 +155,7 @@ function Challenge() {
                 return (
                     <div key={index} className="mb-4">
                         <h3>
-                            {course} <span className="badge bg-info">{ips[index]}</span>
+                            {titles[index]} <span className="badge bg-info">{ips[index]}</span>
                         </h3>
                         <div className="input-group">
                             <input

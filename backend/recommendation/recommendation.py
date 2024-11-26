@@ -109,6 +109,7 @@ def hybrid_recommendations_filtered(user_id, knn_model, svd_model, courses_df, u
         # Manejo de usuarios sin historial
         filtered_courses_df = courses_df.copy()
         problematic_courses = user_courses_df[(user_courses_df['user_id'] == user_id) & (user_courses_df['completed'] == False)]
+
     else:
         # Unir completed_courses con estimated_time
         completed_courses = completed_courses.merge(
@@ -119,12 +120,14 @@ def hybrid_recommendations_filtered(user_id, knn_model, svd_model, courses_df, u
 
         # Identificar cursos problemáticos
         problematic_courses = completed_courses[
-            completed_courses['time_spent'] > completed_courses['estimated_time']
+            (completed_courses['time_spent'] > completed_courses['estimated_time'])
         ]
         excluded_course_ids = set(completed_courses['course_id'])
 
         # Filtrar cursos no completados
         filtered_courses_df = courses_df[~courses_df['course_id'].isin(excluded_course_ids)].copy()
+        
+    unfinished_courses_df = user_courses_df[(user_courses_df['user_id'] == user_id) & (user_courses_df['completed'] == False)]        
 
     # Verificar si hay cursos para recomendar
     if filtered_courses_df.empty:
@@ -146,8 +149,9 @@ def hybrid_recommendations_filtered(user_id, knn_model, svd_model, courses_df, u
 
     # Aumentar peso a cursos problemáticos
     filtered_courses_df['priority'] = filtered_courses_df['course_id'].apply(
-        lambda x: 1.5 if x in problematic_courses['course_id'].values else 1.0
-    )
+        lambda x: 1.5 if (x in problematic_courses['course_id'].values or x in unfinished_courses_df['course_id'].values) else 1.0
+)
+
 
     # Combinar puntuaciones
     filtered_courses_df['hybrid_score'] = (

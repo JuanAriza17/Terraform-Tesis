@@ -34,7 +34,8 @@ function Dashboard() {
     const handleDeploy = async () => {
         setLoading(true);
         const newFlags = selectedCourses.map(() => nanoid(16));
-        const alias = selectedCourses.map((course) => (course.alias)); // Cambiar por alias
+        const alias = selectedCourses.map((course) => (course.alias));
+        const titles = selectedCourses.map((course) => (course.title));
         const ids = selectedCourses.map((course) => (course.id))
         try {
             const response = await axios.post('http://localhost:8000/deploy', {
@@ -48,7 +49,7 @@ function Dashboard() {
             });
             setMessage("Cursos desplegados");
             localStorage.setItem("workspace", response.data.workspace);
-            navigate('/loading', { state: { courses: alias, flags: newFlags, ips: response.data.ip, ids: response.data.id, course_ids: ids } });
+            navigate('/loading', { state: { titles: titles, courses: alias, flags: newFlags, ips: response.data.ip, ids: response.data.id, course_ids: ids } });
         } catch (error) {
             setMessage('Error al desplegar las máquinas');
             console.error(error.response);

@@ -6,7 +6,7 @@ import qs from 'qs';
 function Loading() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { courses = [], flags = [], ips = [], ids = [], course_ids = [] } = location.state || {};
+    const { titles = [], courses = [], flags = [], ips = [], ids = [], course_ids = [] } = location.state || {};
     const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
@@ -33,9 +33,9 @@ function Loading() {
     useEffect(() => {
         if (isInitialized) {
             // Navegar a la página de desafío y pasar los cursos y flags cuando las máquinas estén inicializadas
-            navigate('/challenge', { state: { courses, flags, ips, course_ids } });
+            navigate('/challenge', { state: { titles, courses, flags, ips, course_ids } });
         }
-    }, [isInitialized, navigate, courses, flags, ips, course_ids]);
+    }, [isInitialized, navigate, titles, courses, flags, ips, course_ids]);
 
     return (
         <div className="d-flex justify-content-center align-items-center">
