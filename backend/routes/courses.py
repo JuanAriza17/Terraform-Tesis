@@ -9,6 +9,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from database.models import Course, User, CourseTeam
 from database.database import get_db
 from routes.users import verify_teacher_or_admin
+from recommendation.recommendation import train_models
+
 
 router = APIRouter(
     prefix="/courses",
@@ -84,7 +86,8 @@ async def create_course(
         db.add(db_course)
         db.commit()  # Confirmamos la transacción en la base de datos
         db.refresh(db_course)  # Refrescamos el objeto con los datos de la base de datos
-
+        train_models(next(get_db()))  # Llama a tu función de entrenamiento
+        
         return db_course  # Retornamos el curso creado
 
     except HTTPException as e:
@@ -111,24 +114,27 @@ async def create_course(
     db: Session = Depends(get_db),
     current_user: User = Depends(verify_teacher_or_admin)  # Solo profesores y admins
 ):
-        # Llamar a la función para agregar el curso a GitHub
+    # Llamar a la función para agregar el curso a GitHub
 
-        # Si el curso fue agregado a GitHub, procedemos a agregarlo a la base de datos
-        db_course = Course(
-            title=course.title,
-            alias=course.alias,
-            description=course.description,
-            type=course.type,
-            team = course.team,
-            difficulty=course.difficulty,
-            estimated_time=course.estimated_time
-        )
+    # Si el curso fue agregado a GitHub, procedemos a agregarlo a la base de datos
+    db_course = Course(
+        title=course.title,
+        alias=course.alias,
+        description=course.description,
+        type=course.type,
+        team = course.team,
+        difficulty=course.difficulty,
+        estimated_time=course.estimated_time
+    )
 
-        db.add(db_course)
-        db.commit()  # Confirmamos la transacción en la base de datos
-        db.refresh(db_course)  # Refrescamos el objeto con los datos de la base de datos
+    db.add(db_course)
+    db.commit()  # Confirmamos la transacción en la base de datos
+    db.refresh(db_course)  # Refrescamos el objeto con los datos de la base de datos
+    
+    train_models(next(get_db()))  # Llama a tu función de entrenamiento
 
-        return db_course  # Retornamos el curso creado
+
+    return db_course  # Retornamos el curso creado
 
 @router.put("/{course_id}/description", status_code=status.HTTP_200_OK)
 async def update_course_description(
@@ -152,5 +158,5 @@ async def update_course_description(
     # Confirmar cambios en la base de datos
     db.commit()
     db.refresh(db_course)  # Actualizar el objeto con la base de datos
-
+    
     return {"message": "Description updated successfully", "course": db_course}
