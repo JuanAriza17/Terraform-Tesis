@@ -34,7 +34,7 @@ def train_models(db):
     joblib.dump(encoder, "./models/onehot.joblib")
     
     X = courses_features_df.drop(columns=['course_id', 'title'])
-    knn_model = NearestNeighbors(n_neighbors=3, metric='euclidean')
+    knn_model = NearestNeighbors(n_neighbors=4, metric='euclidean')
     knn_model.fit(X)
 
     # Guardar el modelo KNN
@@ -95,7 +95,7 @@ def decode_onehot(processed_courses_df, encoder):
     return decoded_df
 
 
-def hybrid_recommendations_filtered(user_id, knn_model, svd_model, courses_df, user_courses_df, encoder, weight_knn=0.7, weight_svd=0.3):
+def hybrid_recommendations_filtered(user_id, knn_model, svd_model, courses_df, user_courses_df, encoder, weight_knn=0.6, weight_svd=0.4):
     # Preprocesar los datos de cursos
     courses_df, _ = preprocess_courses(courses_df, encoder)
     
@@ -139,7 +139,7 @@ def hybrid_recommendations_filtered(user_id, knn_model, svd_model, courses_df, u
     filtered_courses_df['knn_score'] = [
         1 / (1 + np.mean(distances)) for distances in knn_indices
     ]
-    
+        
     # Predecir con SVD para todos los cursos no completados
     svd_scores = []
     for _, row in filtered_courses_df.iterrows():
