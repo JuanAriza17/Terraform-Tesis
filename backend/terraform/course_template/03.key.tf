@@ -1,5 +1,5 @@
 
-# ssh-keygen -t rsa -b 2048 -f "example.key"
+# ssh-keygen -t rsa -b 2048 -f "default.key"
 resource "aws_key_pair" "example-ssh" {
   count = var.instance_count
   key_name   = "${var.server_name}-${count.index}-${var.flags[count.index]}"

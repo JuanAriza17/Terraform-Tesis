@@ -7,6 +7,8 @@ resource "aws_instance" "example" {
   
   key_name = aws_key_pair.example-ssh[count.index].key_name
 
+  subnet_id              = aws_subnet.public_subnet.id
+  associate_public_ip_address = true  # Asegura que la instancia tenga IP pública
   vpc_security_group_ids = [
     aws_security_group.example-sg[count.index].id
   ]

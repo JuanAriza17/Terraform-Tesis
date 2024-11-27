@@ -17,7 +17,7 @@ variable "flags" {
 variable "instance_count" {
   description = "Número de instancias a crear"
   type        = number
-  default     = 1
+  default     = 2
 }
 
 module "default" {
@@ -35,6 +35,11 @@ module "default" {
 output "default_ip" {
   description = "Dirección IP pública de la instancia EC2"
   value       = module.default.server_public_ip
+}
+
+output "private_ip" {
+  description = "Dirección IP privada de la instancia EC2"
+  value       = module.default.server_private_ip
 }
 
 output "default_id" {
