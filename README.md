@@ -56,12 +56,6 @@ CyberLearn es una plataforma educativa diseñada para enseñar ciberseguridad me
 
 ---
 
-## Contribuciones
-
-¡Las contribuciones son bienvenidas! Por favor, sigue el flujo estándar de Git para enviar cambios o abrir problemas.
-
----
-
 ## Licencia
 
 Este proyecto está bajo la licencia [MIT](LICENSE).
